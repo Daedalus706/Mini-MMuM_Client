@@ -10,6 +10,9 @@ class Client:
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.connect((self.ip, self.port))
 
+    def connect(self):
+        data = '{"sender": "client"}'.encode()
+        self.socket.sendall(data)
     
     def recive(self):
         data = self.socket.recv(1024)
