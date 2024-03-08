@@ -1,4 +1,5 @@
 import socket
+import json
 
 
 class Client:
@@ -7,14 +8,13 @@ class Client:
         self.port = port
 
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-    def echo_message(self, message:str):
         self.socket.connect((self.ip, self.port))
-        self.socket.sendall(message.encode())
+
+    
+    def recive(self):
         data = self.socket.recv(1024)
-        print(f"Received {data!r}")
+        if data == '':
+            return None
+        string = data.decode("utf-8")
+        return json.loads(string)
 
-
-if __name__ == '__main__':
-    client = Client("4.245.190.111", 5010)
-    client.echo_message("test message")
