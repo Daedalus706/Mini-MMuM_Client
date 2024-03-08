@@ -13,7 +13,7 @@ class Client:
     
     def recive(self):
         data = self.socket.recv(1024)
-        if data == '':
+        if not data:
             return None
         string = data.decode("utf-8")
         return json.loads(string)

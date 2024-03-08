@@ -13,11 +13,13 @@ size = np.array([50, 50])
 
 while True:
     for event in pygame.event.get():
-        if event.type == pygame.quit():
+        if event.type == pygame.QUIT:
             pygame.quit()
             quit()
 
+    data = {'move': 'no'}
     data = client.recive()
+    
     if data is not None:
         if data['move'] == 'left':
             pos -= size[0]
