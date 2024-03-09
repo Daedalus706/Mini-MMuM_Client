@@ -4,11 +4,15 @@ import pygame
 import numpy as np
 
 address = "localhost"
-address = "10.147.18.240"
-HEADERSIZE = 8
+#address = "10.147.18.240"
 
 client = Client(address, 5010)
-client.connect()
+
+try:
+    client.connect()
+except ConnectionRefusedError as e:
+    print("Could not connect:", e)
+    quit()
 
 resolution = np.array([500, 500])
 window = pygame.display.set_mode(resolution)
@@ -23,8 +27,7 @@ def threaded_update_players(return_dict:dict, client:Client):
     t = threading.current_thread()
     while getattr(t, "do_run", True):
 
-        header = client.recive(8)
-        data = client.recive(int(header.strip()))
+        data = client.recive()
 
         if data is not None:
             if data['move'] == 'left':
