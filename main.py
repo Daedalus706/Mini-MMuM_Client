@@ -2,7 +2,10 @@ from client import Client
 import pygame
 import numpy as np
 
-client = Client("localhost", 5010)
+address = "localhost"
+address = "10.147.18.240"
+
+client = Client(address, 5010)
 
 resolution = np.array([500, 500])
 window = pygame.display.set_mode(resolution)
