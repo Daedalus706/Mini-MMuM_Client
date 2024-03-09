@@ -23,4 +23,10 @@ class Client:
             return None
         string = data.decode("utf-8")
         return json.loads(string)
+    
+    def close(self):
+        try:
+            self.socket.shutdown(socket.SHUT_RDWR)
+        except ConnectionAbortedError:
+            print("Connection closed")
 
