@@ -5,8 +5,10 @@ import numpy as np
 
 address = "localhost"
 address = "10.147.18.240"
+HEADERSIZE = 8
 
 client = Client(address, 5010)
+client.connect()
 
 resolution = np.array([500, 500])
 window = pygame.display.set_mode(resolution)
@@ -20,7 +22,10 @@ return_dict = {'pos': pos}
 def threaded_update_players(return_dict:dict, client:Client):
     t = threading.current_thread()
     while getattr(t, "do_run", True):
-        data = client.recive()
+
+        header = client.recive(8)
+        data = client.recive(int(header.strip()))
+
         if data is not None:
             if data['move'] == 'left':
                 return_dict['pos'][0] -= size[0]
