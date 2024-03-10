@@ -19,3 +19,4 @@ while view.running:
     view.draw()
 
 network.close()
+view.close()
