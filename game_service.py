@@ -7,6 +7,9 @@ class GameService:
         self.characters:list[Character] = []
         self.players:dict[str:Character] = {}
 
+        self.active_character:Character = None
+        self.selected_field:Field = None
+
     def handle_data(self, data:dict[str:str]) -> None:
         if data != None:
 
@@ -17,13 +20,23 @@ class GameService:
                     new_character = Character(f"{data['userName']}'s character")
                     self.players[data['userName']] = new_character
                     self.characters.append(new_character)
+                    self.active_character = new_character
                     for x in range(10):
                         if self.map.place(new_character, x, 0):
+                            self.selected_field = self.map.get_pos_of(new_character)
                             break
             
             if 'move' in data:
                 character:Character = self.players[data['userName']]
-                print('moved', character.name)
+                self.map.move(character, data['move'])
+            
+            if 'select' in data:
+                if data['select'] == 'center':
+                    self.selected_field = self.map.get_pos_of(self.active_character)
+                else:
+                    new_selection = self.map.get_neighbor(self.selected_field, data['select'])
+                    if new_selection is not None:
+                        self.selected_field = new_selection
 
 
     
