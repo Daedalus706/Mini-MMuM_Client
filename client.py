@@ -15,18 +15,19 @@ class Client:
         data = '20      {"sender": "client"}'.encode()
         self.socket.sendall(data)
     
-    def recive(self):
-        header = self.socket.recv(HEADERSIZE)
-        data = self.socket.recv(int(header.strip()))
-
-        if not data:
-            return None
-        string = data.decode("utf-8")
-        return json.loads(string)
-    
-    def close(self):
+    def recive(self) -> dict:
         try:
-            self.socket.shutdown(socket.SHUT_RDWR)
+            header = self.socket.recv(HEADERSIZE)
+            data = self.socket.recv(int(header.strip()))
+
+            if not data:
+                return None
+            string = data.decode("utf-8")
+            return json.loads(string)
         except ConnectionAbortedError:
             print("Connection closed")
+    
+    def close(self):
+        self.socket.close()
+            
 

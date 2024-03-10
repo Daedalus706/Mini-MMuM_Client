@@ -8,7 +8,17 @@ class Map:
         self.map:list[list[Field]] = []
         self.size:tuple[int, int] = size
 
-        for y in range(size[1]):
+        for x in range(size[0]):
             self.map.append([])
-            for x in range(size[0]):
-                self.map[y].append(Field(x, y))
+            for y in range(size[1]):
+                self.map[x].append(Field(x, y))
+
+    def place(self, character:Character, x:int, y:int) -> bool:
+        if not 0 <= x < self.size[0] or not 0 <= y < self.size[1]:
+            return False
+        if self.map[x][y].character is not None:
+            return False
+        
+        self.map[x][y].character = character
+        return True
+    

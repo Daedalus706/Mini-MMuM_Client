@@ -52,3 +52,5 @@ def threaded_update_data(network:Network):
     while getattr(t, "do_run", True):
         data = client.recive()
         network.data_list.append(data)
+        if len(network.data_list) > 10:
+            print(f"Warning: too much data in queue: {len(network.data_list)}")
