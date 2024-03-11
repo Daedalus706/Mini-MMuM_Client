@@ -2,6 +2,7 @@ import pygame
 
 from model import Character
 from view.colors import Color
+from view.util import write_at
 
 
 class CharacterInfo:
@@ -61,20 +62,5 @@ class CharacterInfo:
         return position[1]+(self.height_collabed if collabsed else self.height_active)
     
 
-def write_at(surf:pygame.Surface, font:pygame.font.Font, pos:tuple[int,int], text:str, text_color:int=0, background_color:int=Color.to_tuple(Color.GOLD), align='left') -> pygame.Rect:
-    """Writes thext with provided font to provided surface. align = 'left' | 'center' | 'right'"""
 
-    text_surf:pygame.Surface = font.render(text, True, text_color, background_color)
-    text_surf.set_colorkey(background_color)
-
-    match align:
-            case 'left':
-                pass
-            case 'center':
-                pos = (pos[0]-text_surf.get_width()//2, pos[1])
-            case 'right':
-                pos = (pos[0]-text_surf.get_width(), pos[1])
-
-    surf.blit(text_surf, pos)
-    return pygame.Rect(pos[0], pos[1], text_surf.get_width(), text_surf.get_height())
     

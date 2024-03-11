@@ -1,6 +1,7 @@
 from model import *
 from service.events import Event
 import json
+import random
 
 
 class GameService:
@@ -11,6 +12,7 @@ class GameService:
         self.players:dict[str:Character] = {}
 
         self.active_character:Character = None
+        self.temporary_active_character:Character = None
         self.selected_field:Field = None
 
         self.events:list[Event] = []
@@ -31,25 +33,11 @@ class GameService:
                             tags = [int(a) for a in ability[3].split(',')]
 
                             self.abilities[ability[0]] = Ability(name, active, triggers, tags)
-                        print(self.abilities)
                 
             elif 'userName' in data:
 
-                ### Checks if the username is not in player list. If so creates a new character and adds it
-                if not data['userName'] in self.players:
-                    new_character = Character(f"{data['userName']}'s character")
-                    self.events.append(Event.NewChraracter(new_character))
-                    
-                    self.players[data['userName']] = new_character
-                    self.characters.append(new_character)
-                    self.active_character = new_character
-                    for x in range(10):
-                        if self.map.place(new_character, x, 0):
-                            self.selected_field = self.map.get_pos_of(new_character)
-                            break
-            
                 ### performs following actions only if the player is active
-                elif self.active_character == self.players[data['userName']]:
+                if self.active_character == self.players[data['userName']]:
 
                     ### Moves the player and reduces character's moves 
                     if 'move' in data:
@@ -62,6 +50,32 @@ class GameService:
                             new_selection = self.map.get_neighbor(self.selected_field, data['select'])
                             if new_selection is not None:
                                 self.selected_field = new_selection
+    
+    def next_character(self):
+        pass
+
+
+    def place_characters(self):
+        player_positions = [
+            (1, 3),(2, 3),(3, 3), 
+            (1, 4),(2, 4),(3, 4),
+            (1, 5),(2, 5),(3, 5),
+            (1, 6),(2, 6),(3, 6),
+            (1, 7),(2, 7),(3, 7)]
+        enemy_positions = [
+            (8, 3),(7, 3),(6, 3), 
+            (8, 4),(7, 4),(6, 4),
+            (8, 5),(7, 5),(6, 5),
+            (8, 6),(7, 6),(6, 6),
+            (8, 7),(7, 7),(6, 7)]
+        
+        for player in self.players:
+            character = self.players[player]
+            pos = player_positions[random.randint(0, len(player_positions)-1)]
+            player_positions.remove(pos)
+            self.map.place(character, pos[0], pos[1])
+
+
     
     def get_events(self) -> list[Event]:
         """Returns list of events. Calling this will empty the event list."""

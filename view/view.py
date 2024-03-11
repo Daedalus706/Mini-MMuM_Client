@@ -1,20 +1,27 @@
 import pygame
+import time
+
 from service.game_service import GameService
-from model import Map, Character, Field
-from view.character_info import CharacterInfo
-from view.colors import Color
+from service.start_service import StartService
 from service.events import Event, EventType
 
-import time
+from model import Map, Character, Field
+
+from view.colors import Color
+from view.scene import Scene
+from view.game_scene import GameScene
+from view.start_scene import StartScene
 
 
 class View:
-    def __init__(self, service:GameService) -> None:
+    def __init__(self, start_service:StartService, game_service:GameService) -> None:
         pygame.init()
         pygame.font.init()
 
-        self.service:GameService = service
+        self.game_service:GameService = game_service
+        self.start_service:StartService = start_service
 
+        self.stage:str = "start"
         self.running:bool = True
         self.last_frame_update:int = 0
 
@@ -28,29 +35,9 @@ class View:
         icon.set_colorkey(0)
         pygame.display.set_icon(icon)
 
-        ### Create Background Image
-        self.map_surf:pygame.Surface = pygame.Surface((1005, 1005))
-        self.map_surf.fill(Color.BROWN)
-        for x in range(service.map.size[0]):
-            for y in range(service.map.size[1]):
-                pygame.draw.rect(self.map_surf, Color.GOLD, (5+x*100, 5+y*100, 95, 95), border_radius=5)
-
-        ### Create Selected Field Surf
-        self.selection_surf = pygame.Surface((105, 105))
-        pygame.draw.rect(self.selection_surf, Color.LIGHT_BLUE, (0, 0, 105, 105), border_radius=15, width=7)
-        self.selection_surf.set_colorkey(0)
-
-        ### Create Game Canvas
-        self.canvas_pos = (0, 0)
-        self.canvas:pygame.Surface = pygame.Surface((1005, 1005))
-
-        ### List of Character Info Elements
-        self.character_info_dict:dict[Character: CharacterInfo] = {}
-
-    def new_character(self, character:Character) -> None:
-        """Call this whenever a new Character connects to the game"""
-        width = self.resolution[0] - self.canvas.get_width() - 20
-        self.character_info_dict[character] = CharacterInfo(character, width)
+        ### define Scenes
+        self.start_scene:Scene = StartScene(self.window)
+        self.game_scene:Scene = GameScene(game_service, self.window)
 
 
     def update(self):
@@ -66,58 +53,25 @@ class View:
             ### Handles window Resizes
             if event.type == pygame.VIDEORESIZE:
                 self.resolution = pygame.display.get_window_size()
-                self.canvas_pos = (0, (self.resolution[1]-self.map_surf.get_height())//2)
-                width = self.resolution[0] - self.canvas.get_width() - 20
-                for character in self.character_info_dict:
-                    info:CharacterInfo = self.character_info_dict[character]
-                    info.create_surf(width)
-                    info.update_surf()
-        
-        for event in self.service.get_events():
 
-            ### Handles new players
-            if event.type == EventType.NEW_CHARACTER:
-                self.new_character(event.character)
+                self.game_scene.resize()
+                self.start_scene.resize()
+            
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    if self.stage == 'start' and self.start_service.can_start():
+                        self.stage = 'game'
+                        self.game_service.characters = self.start_service.get_characters()
+                        self.game_service.players = self.start_service.get_players()
+                        self.game_service.active_character = self.start_service.get_characters()[0]
+                        self.game_service.place_characters()
+                        self.game_service.selected_field = self.game_service.map.get_pos_of(self.game_service.active_character)
+                        self.game_scene.add_characters()
+        
+        for event in self.game_service.get_events():
+            pass
                 
 
-    def draw_canvas(self) -> None:
-        """ Redraws the canvas. This is function is called in the Map.draw() function and doesn't need to be called seperately """
-
-        ### draws the background first
-        self.canvas.blit(self.map_surf, (0, 0))
-
-        ### Draws the selection outline
-        if self.service.selected_field is not None:
-            pos = (self.service.selected_field.x*100, self.service.selected_field.y*100)
-            self.canvas.blit(self.selection_surf, pos)
-
-        ### Draws all the characters to the game canvas
-        game_map:list[list[Field]] = self.service.map.map
-        for row in game_map:
-            for field in row:
-                if field.character is None:
-                    continue
-                pos = (field.x*100+53, field.y*100+53)
-                pygame.draw.circle(self.canvas, 0x805020, pos, 40)
-
-        ### Draws the canvas to the screen
-        self.window.blit(self.canvas, self.canvas_pos)
-
-    
-    def draw_info_list(self) -> None:
-        """draws the character info the the right side of the screen"""
-        for c in self.character_info_dict:
-            info:CharacterInfo = self.character_info_dict[c]
-            info.update_surf()
-
-        x = self.canvas.get_width() + 10
-        y = 10
-        for character in self.character_info_dict:
-            info:CharacterInfo = self.character_info_dict[character]
-            collabsed = character != self.service.active_character
-            y = info.draw(self.window, (x, y), collabsed=collabsed) + 10
-
-    
 
     def draw(self) -> None:
         """Draws the new Frame on the screen"""
@@ -126,15 +80,12 @@ class View:
         if time.time()-1/FPS < self.last_frame_update:
             return
         self.last_frame_update = time.time()
-        
-        ### clears the screen
-        self.window.fill(Color.COPPER)
 
-        ### draws the canvas on the screen
-        self.draw_canvas()
-
-        ### draws the character info list 
-        self.draw_info_list()
+        match self.stage:
+            case 'start':
+                self.start_scene.draw()
+            case 'game':
+                self.game_scene.draw()
 
         pygame.display.update()
 
