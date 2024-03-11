@@ -19,6 +19,7 @@ class GameService:
 
     def handle_data(self, data:dict[str:str]) -> None:
         if data != None:
+            print(f"Handleing data:", data)
 
             if 'request' in data:
                 match data['request']:
@@ -32,7 +33,9 @@ class GameService:
                             self.abilities[ability[0]] = Ability(name, active, triggers, tags)
                         print(self.abilities)
                 
-            if 'userName' in data:
+            elif 'userName' in data:
+
+                ### Checks if the username is not in player list. If so creates a new character and adds it
                 if not data['userName'] in self.players:
                     new_character = Character(f"{data['userName']}'s character")
                     self.events.append(Event.NewChraracter(new_character))
@@ -45,17 +48,20 @@ class GameService:
                             self.selected_field = self.map.get_pos_of(new_character)
                             break
             
-                if 'move' in data:
-                    character:Character = self.players[data['userName']]
-                    self.map.move(character, data['move'])
-                
-                if 'select' in data:
-                    if data['select'] == 'center':
-                        self.selected_field = self.map.get_pos_of(self.active_character)
-                    else:
-                        new_selection = self.map.get_neighbor(self.selected_field, data['select'])
-                        if new_selection is not None:
-                            self.selected_field = new_selection
+                ### performs following actions only if the player is active
+                elif self.active_character == self.players[data['userName']]:
+
+                    ### Moves the player and reduces character's moves 
+                    if 'move' in data:
+                        self.map.move(self.active_character, data['move'])
+                    
+                    if 'select' in data:
+                        if data['select'] == 'center':
+                            self.selected_field = self.map.get_pos_of(self.active_character)
+                        else:
+                            new_selection = self.map.get_neighbor(self.selected_field, data['select'])
+                            if new_selection is not None:
+                                self.selected_field = new_selection
     
     def get_events(self) -> list[Event]:
         """Returns list of events. Calling this will empty the event list."""

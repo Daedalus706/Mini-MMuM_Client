@@ -106,6 +106,10 @@ class View:
     
     def draw_info_list(self) -> None:
         """draws the character info the the right side of the screen"""
+        for c in self.character_info_dict:
+            info:CharacterInfo = self.character_info_dict[c]
+            info.update_surf()
+
         x = self.canvas.get_width() + 10
         y = 10
         for character in self.character_info_dict:

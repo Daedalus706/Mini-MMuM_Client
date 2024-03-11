@@ -23,6 +23,14 @@ class Character:
         self.bonus_actions = self.base_bonus_actions
         self.moves = self.base_moves
 
+    def can_move(self):
+        if self.moves < 1:
+            return False
+        return True
+
+    def move(self):
+        self.moves -= 1
+
     def get_hp(self) -> int:
         return self.hp
 

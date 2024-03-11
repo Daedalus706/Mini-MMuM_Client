@@ -7,3 +7,7 @@ class Ability:
         self.active:bool = active
         self.triggers:list[TRIGGER] = triggers
         self.tags:list = tags
+
+    def __repr__(self) -> str:
+        return f"Ability('{self.name}', active:{self.active}"
+    

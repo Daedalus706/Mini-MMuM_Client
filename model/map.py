@@ -73,11 +73,14 @@ class Map:
     
     def move(self, character:Character, direction:str) -> bool:
         """ Moves a charater into a direction. It return whether the move was successfull or not"""
+        if not character.can_move():
+            return False
+
         old_field = self.get_pos_of(character)
         if old_field is None:
             return False
         
-        new_field = self.get_neighbor(old_field, direction)
+        new_field:Field = self.get_neighbor(old_field, direction)
 
         if new_field is None:
             return False
@@ -87,5 +90,7 @@ class Map:
         
         old_field.character = None
         new_field.character = character
+
+        character.move()
 
         return True
