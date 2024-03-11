@@ -6,12 +6,13 @@ import time
 
 
 address = "localhost"
-address = "10.147.18.240"
+#address = "10.147.18.240"
 
 network = Network(address)
 service = GameService((10, 10))
 view = View(service)
 
+network.request_abilities()
 
 while view.running:
     service.handle_data(network.get_data())

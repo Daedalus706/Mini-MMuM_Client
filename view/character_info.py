@@ -14,7 +14,8 @@ class CharacterInfo:
         self.height_collabed:int = 50
         self.height_active:int = 400
 
-        self.font = pygame.font.Font("fonts/MorrisRoman-Black.ttf", 30)
+        self.font_h = pygame.font.Font("fonts/MorrisRoman-Black.ttf", 35)
+        self.font_p = pygame.font.Font("fonts/MorrisRoman-Black.ttf", 25)
 
         ### Creates the two surfaces and sets the colorkey to white (0xffffff) 
         self.surf_collabsed:pygame.Surface = None
@@ -43,15 +44,37 @@ class CharacterInfo:
         pygame.draw.rect(self.surf_active, Color.GOLD, (0, 0, self.width, self.height_active), border_radius=10)
         pygame.draw.rect(self.surf_active, Color.BROWN, (0, 0, self.width, self.height_active), border_radius=10, width=5)
 
-        surf = self.font.render(self.character.name, True, 0, Color.to_tuple(Color.GOLD))
-        surf.set_colorkey(Color.to_tuple(Color.GOLD))
-        self.surf_collabsed.blit(surf, ((self.surf_collabsed.get_width()-surf.get_width())/2, 10))
-        self.surf_active.blit(surf, ((self.surf_active.get_width()-surf.get_width())/2, 10))
+        write_at(self.surf_collabsed, self.font_h, (self.surf_collabsed.get_width()//2, 10), self.character.name, align='center')
 
-        
+        name_y, name_h = write_at(self.surf_active, self.font_h, (self.surf_active.get_width()//2, 10), self.character.name, align='center')[1::2]
+        y, h = write_at(self.surf_active, self.font_p, (10, name_y+name_h+10), f"HP: {self.character.get_hp()}", align='left')[1::2]
+        y, h = write_at(self.surf_active, self.font_p, (10, y+h+10), f"AC: {self.character.get_ac()}", align='left')[1::2]
+
+        y, h = write_at(self.surf_active, self.font_p, (self.surf_active.get_width()-10, name_y+name_h+10), f"Bewegungen: {self.character.get_moves()}", align='right')[1::2]
+        y, h = write_at(self.surf_active, self.font_p, (self.surf_active.get_width()-10, y+h+10), f"Aktionen: {self.character.get_actions()}", align='right')[1::2]
+        y, h = write_at(self.surf_active, self.font_p, (self.surf_active.get_width()-10, y+h+10), f"Bonus Aktionen: {self.character.get_bonus_actions()}", align='right')[1::2]
 
 
     def draw(self, surf:pygame.Surface, position:tuple[int,int], collabsed:bool=True) -> int:
         """Draws the info surface to the provided surface. It returns the bottom height coordinate"""
         surf.blit(self.surf_collabsed if collabsed else self.surf_active, position)
         return position[1]+(self.height_collabed if collabsed else self.height_active)
+    
+
+def write_at(surf:pygame.Surface, font:pygame.font.Font, pos:tuple[int,int], text:str, text_color:int=0, background_color:int=Color.to_tuple(Color.GOLD), align='left') -> pygame.Rect:
+    """Writes thext with provided font to provided surface. align = 'left' | 'center' | 'right'"""
+
+    text_surf:pygame.Surface = font.render(text, True, text_color, background_color)
+    text_surf.set_colorkey(background_color)
+
+    match align:
+            case 'left':
+                pass
+            case 'center':
+                pos = (pos[0]-text_surf.get_width()//2, pos[1])
+            case 'right':
+                pos = (pos[0]-text_surf.get_width(), pos[1])
+
+    surf.blit(text_surf, pos)
+    return pygame.Rect(pos[0], pos[1], text_surf.get_width(), text_surf.get_height())
+    
