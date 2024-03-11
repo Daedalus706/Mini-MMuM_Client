@@ -44,6 +44,8 @@ def threaded_connect(network:Network):
                 break
             except ConnectionRefusedError as e:
                 print("Trying to connect...")
+            except TimeoutError as e:
+                print("Trying to connect...")
 
 
 def threaded_update_data(network:Network):

@@ -5,7 +5,7 @@ from .area_of_effect import AOE
 
 
 
-def weapon_attack(user:Character, target_field:Field, aoe_type:AOE):
+def weapon_attack(user:Character, target_field:Field, aoe_type:AOE, range:int):
     targets = []
 
 

@@ -1,4 +1,5 @@
 from model import *
+from service.events import Event
 
 class GameService:
     def __init__(self, field_size:tuple[int, int]) -> None:
@@ -10,6 +11,8 @@ class GameService:
         self.active_character:Character = None
         self.selected_field:Field = None
 
+        self.events:list[Event] = []
+
     def handle_data(self, data:dict[str:str]) -> None:
         if data != None:
 
@@ -18,6 +21,8 @@ class GameService:
             else:
                 if not data['userName'] in self.players:
                     new_character = Character(f"{data['userName']}'s character")
+                    self.events.append(Event.NewChraracter(new_character))
+                    
                     self.players[data['userName']] = new_character
                     self.characters.append(new_character)
                     self.active_character = new_character
@@ -37,6 +42,12 @@ class GameService:
                     new_selection = self.map.get_neighbor(self.selected_field, data['select'])
                     if new_selection is not None:
                         self.selected_field = new_selection
+    
+    def get_events(self) -> list[Event]:
+        """Returns list of events. Calling this will empty the event list."""
+        events = self.events
+        self.events = []
+        return events
 
 
     

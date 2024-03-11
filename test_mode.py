@@ -1,6 +1,6 @@
 from model import *
-from game_service import GameService
-from view import View
+from service.game_service import GameService
+from view.view import View
 
 import time
 
