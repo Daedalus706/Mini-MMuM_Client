@@ -21,7 +21,7 @@ while view.running and view.stage == "start":
     view.update()
     view.draw()
 
-network.request_abilities()
+network.request_data(['weapons', 'abilities'])
 
 while view.running and view.stage == "game":
     game_service.handle_data(network.get_data())

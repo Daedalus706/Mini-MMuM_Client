@@ -33,11 +33,12 @@ class Network:
             thread.do_run = False
         self.client.close()
 
-    def request_abilities(self) -> None:
-        """Sends a request for the abilities to the server. The response can be accesed in the data list with {'rquest': 'abilities', 'data': abilities}"""
-        thread = threading.Thread(target=threaded_request, args=(self, 'abilities'))
-        self.request_threads.append(thread)
-        thread.start()
+    def request_data(self, requests:list[str]) -> None:
+        """Sends a request for abilities, weapons, etc. to the server. The response can be accesed in the data list with {'rquest': name, 'data': data}"""
+        for name in requests:
+            thread = threading.Thread(target=threaded_request, args=(self, name))
+            self.request_threads.append(thread)
+            thread.start()
     
 def threaded_connect(network:Network):
     t = threading.current_thread()

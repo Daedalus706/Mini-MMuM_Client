@@ -1,10 +1,12 @@
-import json
+from model import Map, Field
 
-
-data = {'number': 5,
-        'string': 'hey',
-        'boolean': True,
-        'number_string': '12'}
-
-print('number' in data)
-print(5 in data)
+if __name__ == "__main__":
+    for i in range(6):
+        for y in range(-6, 7):
+            s = ""
+            for x in range(-6, 7):
+                if Map.field_in_range(None, (0, 0), Field(x, y), i):
+                    s += ' #'
+                else:
+                    s += '  '
+            print(s)

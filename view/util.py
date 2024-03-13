@@ -2,11 +2,11 @@ import pygame
 from view.colors import Color
 
 
-def write_at(surf:pygame.Surface, font:pygame.font.Font, pos:tuple[int,int], text:str, text_color:int=0, background_color:int=Color.to_tuple(Color.GOLD), align='left') -> pygame.Rect:
+def write_at(surf:pygame.Surface, font:pygame.font.Font, pos:tuple[int,int], text:str, text_color:int=0, background_color:int=Color.GOLD, align='left') -> pygame.Rect:
     """Writes thext with provided font to provided surface. align = 'left' | 'center' | 'right'"""
 
-    text_surf:pygame.Surface = font.render(text, True, text_color, background_color)
-    text_surf.set_colorkey(background_color)
+    text_surf:pygame.Surface = font.render(text, True, text_color, Color.to_tuple(background_color))
+    text_surf.set_colorkey(Color.to_tuple(background_color))
 
     match align:
             case 'left':

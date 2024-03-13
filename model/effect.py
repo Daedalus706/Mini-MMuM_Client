@@ -15,6 +15,10 @@ class Effect:
     def do_trigger(self, trigger:TRIGGER):
         if self.remove:
             return
+
         
-        if trigger == self.reduce_countdown_trigger:
+        if trigger in self.reduce_countdown_triggers:
             self.countdown -= 1
+        
+        if self.countdown == 0:
+            self.remove = True

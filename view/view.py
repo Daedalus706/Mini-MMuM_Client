@@ -67,9 +67,19 @@ class View:
                         self.game_service.place_characters()
                         self.game_service.selected_field = self.game_service.map.get_pos_of(self.game_service.active_character)
                         self.game_scene.add_characters()
+
+        match self.stage:
+            case 'start':
+
+                for event in self.start_service.get_events():
+                    if event.type == EventType.NEW_CHARACTER:
+                        self.start_scene.new_character(event.character)
+
+            case 'game':
         
-        for event in self.game_service.get_events():
-            pass
+                for event in self.game_service.get_events():
+                    pass
+
                 
 
 

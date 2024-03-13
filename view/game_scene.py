@@ -91,7 +91,7 @@ class GameScene(Scene):
 
     def add_characters(self) -> None:
         for character in self.service.players.values():
-            self.new_character(character)
+            self.new_character(character)  
     
     def new_character(self, character:Character) -> None:
         """Call this whenever a new Character connects to the game"""

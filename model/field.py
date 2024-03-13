@@ -7,3 +7,6 @@ class Field:
         self.y:int = y
 
         self.character:Character = None
+    
+    def get_pos(self) -> tuple[int,int]:
+        return (self.x, self.y)
