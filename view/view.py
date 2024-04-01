@@ -78,7 +78,8 @@ class View:
             case 'game':
         
                 for event in self.game_service.get_events():
-                    pass
+                    if event.type == EventType.ROLL_DICE:
+                        self.game_scene.roll_dice(event.dice, event.number)
 
                 
 

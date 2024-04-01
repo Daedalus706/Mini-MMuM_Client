@@ -26,8 +26,9 @@ class GameService:
         self.abilities = {}
         self.weapons = {}
 
-        self.dice_roll = None
-        self.attack_stage = 'ready'
+        self.dice_roll_result:int = 0
+        self.dice_to_roll:DICE = None
+        self.attack_stage = 'dice'
 
     def handle_data(self, data:dict[str:str]) -> None:
         if data != None:
@@ -94,7 +95,10 @@ class GameService:
                     
                     elif 'dice' in data:
                         if self.attack_stage == 'dice':
-                            pass
+                            self.dice_to_roll = DICE.D20
+                            self.dice_roll_result = random.randint(1, self.dice_to_roll.value)
+                            self.events.append(Event.RollDice(self.dice_to_roll, self.dice_roll_result))
+                            self.dice_to_roll = None
                         
     def use_ability(self, ability:Ability):
         origin = self.map.get_pos_of(self.active_character)

@@ -1,12 +1,12 @@
-from model import Map, Field
+from view.dice_view import DiceView
+from model import DICE
+import pygame
 
-if __name__ == "__main__":
-    for i in range(6):
-        for y in range(-6, 7):
-            s = ""
-            for x in range(-6, 7):
-                if Map.field_in_range(None, (0, 0), Field(x, y), i):
-                    s += ' #'
-                else:
-                    s += '  '
-            print(s)
+
+pygame.init()
+pygame.font.init()
+
+
+dice = DiceView(5, DICE.D20)
+
+dice.draw((pygame.Surface((100, 100)), (0, 0)))

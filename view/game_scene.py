@@ -5,6 +5,7 @@ from service.game_service import GameService
 from view.character_info import CharacterInfo
 from view.colors import Color
 from view.scene import Scene
+from view.dice_view import DiceView
 
 
 class GameScene(Scene):
@@ -32,6 +33,9 @@ class GameScene(Scene):
         ### List of Character Info Elements
         self.character_info_dict:dict[Character: CharacterInfo] = {}
 
+        ### Dice Box
+        self.dice_box = DiceView()
+
     def resize(self):
         super().resize()
 
@@ -51,6 +55,9 @@ class GameScene(Scene):
 
         ### draws the character info list 
         self.draw_info_list()
+
+        ### draws the dice box
+        self.dice_box.draw(self.window, (1200, 900))
 
     def draw_canvas(self) -> None:
         """ Redraws the canvas. This is function is called in the Map.draw() function and doesn't need to be called seperately """
@@ -97,3 +104,7 @@ class GameScene(Scene):
         """Call this whenever a new Character connects to the game"""
         width = self.resolution[0] - self.canvas.get_width() - 20
         self.character_info_dict[character] = CharacterInfo(character, width)
+
+    def roll_dice(self, dice:DICE, number:int):
+        """Starts the dice roll animation"""
+        self.dice_box.start_animation(dice, number)
