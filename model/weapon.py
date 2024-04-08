@@ -17,4 +17,4 @@ class Weapon:
         self.uses_left -= 1
 
     def __repr__(self) -> str:
-        return f"Weapon({self.name}, one_handed={self.one_handed}, damage={self.damage}, range={self.range}, uses={self.uses}, aoe={self.aoe_type}"
+        return f"Weapon('{self.name}', one_handed={self.one_handed}, damage={self.damage}, range={self.range}, uses={self.uses}, aoe={self.aoe_type})"

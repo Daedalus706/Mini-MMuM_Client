@@ -46,6 +46,7 @@ class CharacterInfo:
         pygame.draw.rect(self.surf_active, Color.BROWN, (0, 0, self.width, self.height_active), border_radius=10, width=5)
 
         write_at(self.surf_collabsed, self.font_h, (10, 10), self.character.name, align='left')
+        write_at(self.surf_collabsed, self.font_p, (self.surf_collabsed.get_width()-10, 15), f"HP: {self.character.get_hp()}", align='right')
 
         name_y, name_h = write_at(self.surf_active, self.font_h, (10, 10), self.character.name, align='left')[1::2]
         y, h = write_at(self.surf_active, self.font_p, (10, name_y+name_h+10), f"HP: {self.character.get_hp()}", align='left')[1::2]

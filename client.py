@@ -12,7 +12,7 @@ class Client:
 
     def connect(self):
         self.socket.connect((self.ip, self.port))
-        data = '20      {"sender": "client"}'
+        data = '19      {"connect": "true"}'
         self.socket.sendall(data.encode())
     
     def recive(self) -> dict:
@@ -23,12 +23,17 @@ class Client:
             if not data:
                 return None
             string = data.decode("utf-8")
-            return json.loads(string)
+            data_decoded = json.loads(string)
+            if 'check' in data_decoded and data_decoded['check']:
+                data = '17      {"alive": "true"}'
+                self.socket.sendall(data.encode())
+
+            return data_decoded
         except ConnectionAbortedError:
             print("Connection closed")
 
     def request_from_server(self, request:str) -> None:
-        message = json.dumps({'request': request, 'sender': 'client'})
+        message = json.dumps({'request': request})
         message = f'{len(message):<{HEADERSIZE}}' + message
         try:
             self.socket.sendall(message.encode())
@@ -39,6 +44,8 @@ class Client:
 
     
     def close(self):
+        data = '20      {"connect": "false"}'
+        self.socket.sendall(data.encode())
         self.socket.close()
             
 

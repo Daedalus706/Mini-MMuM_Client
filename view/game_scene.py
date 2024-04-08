@@ -1,4 +1,5 @@
 import pygame
+import time
 
 from model import *
 from service.game_service import GameService
@@ -6,6 +7,8 @@ from view.character_info import CharacterInfo
 from view.colors import Color
 from view.scene import Scene
 from view.dice_view import DiceView
+from view.util import write_at
+from view.popup import Popup
 
 
 class GameScene(Scene):
@@ -13,6 +16,8 @@ class GameScene(Scene):
         super().__init__(window)
 
         self.service = service
+
+        self.title_font = pygame.font.Font("fonts/MorrisRoman-Black.ttf", 70)
 
         ### Create Background Image
         self.map_surf:pygame.Surface = pygame.Surface((1005, 1005))
@@ -35,6 +40,9 @@ class GameScene(Scene):
 
         ### Dice Box
         self.dice_box = DiceView()
+
+        ### popup
+        self.popup:Popup = None
 
     def resize(self):
         super().resize()
@@ -59,6 +67,9 @@ class GameScene(Scene):
         ### draws the dice box
         self.dice_box.draw(self.window, (1200, 900))
 
+        ### Draws the countdown
+        write_at(self.window, self.title_font, (1000+(self.window.get_width()-1000)//2, 10), str(int(self.service.round_time-time.time()+self.service.round_start)), align='center', background_color=Color.COPPER)
+
     def draw_canvas(self) -> None:
         """ Redraws the canvas. This is function is called in the Map.draw() function and doesn't need to be called seperately """
 
@@ -81,6 +92,12 @@ class GameScene(Scene):
 
         ### Draws the canvas to the screen
         self.window.blit(self.canvas, self.canvas_pos)
+
+        ### draws popup if there is one
+        if self.popup is not None:
+            self.popup.draw(self.window)
+            if not self.popup.active:
+                self.popup = None
     
     
     def draw_info_list(self) -> None:
@@ -90,7 +107,7 @@ class GameScene(Scene):
             info.update_surf()
 
         x = self.canvas.get_width() + 10
-        y = 10
+        y = 100
         for character in self.character_info_dict:
             info:CharacterInfo = self.character_info_dict[character]
             collabsed = character != self.service.active_character
@@ -105,6 +122,9 @@ class GameScene(Scene):
         width = self.resolution[0] - self.canvas.get_width() - 20
         self.character_info_dict[character] = CharacterInfo(character, width)
 
-    def roll_dice(self, dice:DICE, number:int):
+    def roll_dice(self, number:int) -> None:
         """Starts the dice roll animation"""
-        self.dice_box.start_animation(dice, number)
+        self.dice_box.start_animation(number)
+
+    def set_dice(self, dice:DICE):
+        self.dice_box.setup(dice)

@@ -79,7 +79,10 @@ class View:
         
                 for event in self.game_service.get_events():
                     if event.type == EventType.ROLL_DICE:
-                        self.game_scene.roll_dice(event.dice, event.number)
+                        self.game_scene.roll_dice(event.number)
+                    
+                    if event.type == EventType.READY_TO_ROLL:
+                        self.game_scene.set_dice(event.dice)
 
                 
 

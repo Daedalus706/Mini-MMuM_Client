@@ -7,7 +7,7 @@ import time
 
 
 address = "localhost"
-#address = "10.147.18.240"
+#address = "game.magnus-rpg.de"
 
 start_service = StartService()
 game_service = GameService((10, 10))
@@ -21,7 +21,8 @@ while view.running and view.stage == "start":
     view.update()
     view.draw()
 
-network.request_data(['weapons', 'abilities'])
+if view.running:
+    network.request_data(['weapons', 'abilities'])
 
 while view.running and view.stage == "game":
     game_service.handle_data(network.get_data())

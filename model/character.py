@@ -8,9 +8,11 @@ from .team import TEAM
 
 
 class Character:
-    def __init__(self, name:str, user:str, team:TEAM) -> None:
+    def __init__(self, name:str, user:str, team:TEAM, player:bool=True) -> None:
+        self.player:bool = player
+
         self.name:str = name
-        self.user: str = user
+        self.user:str = user
         self.team:TEAM = team
         self.armor:Armor = None
 
