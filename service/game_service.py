@@ -24,6 +24,7 @@ class GameService:
         self.selected_field:Field = None
         self.active_ability:Ability = None
         self.ability_queue_pos = 0
+        self.damage_buffer = 0
 
         self.events:list[Event] = []
 
@@ -55,15 +56,16 @@ class GameService:
                     print("\n----------------------------------- Abilities ------------------------------------------------------")
                     for ability in data['data']:
                         name = ability[0]
-                        cost = ability[1]
-                        active = ability[2] != 0
-                        bonus = ability[3] != 0
-                        action = ability[4]
-                        action_queue = json.loads(ability[5])
-                        tags = json.loads(ability[6])
-                        triggers = [TRIGGER.get_by_value(int(a)) for a in ability[7].split(',')]
+                        range = ability[1]
+                        cost = ability[2]
+                        active = ability[3] != 0
+                        bonus = ability[4] != 0
+                        action = ability[5]
+                        action_queue = json.loads(ability[6])
+                        tags = json.loads(ability[7])
+                        triggers = [TRIGGER.get_by_value(int(a)) for a in ability[8].split(',')]
                         
-                        new_ability = Ability(name, cost, active, bonus, action, action_queue, tags, triggers)
+                        new_ability = Ability(name, range, cost, active, bonus, action, action_queue, tags, triggers)
                         self.abilities[name] = new_ability
                         print(new_ability)
                     print("---------------------------------------------------------------------------------------------------\n")
@@ -131,7 +133,6 @@ class GameService:
 
     def use_ability(self, ability:Ability):
         origin = self.map.get_pos_of(self.active_character)
-        tags = ability.tags
 
         if not ability.bonus and self.active_character.get_actions() == 0:
             print("Ability: no actions left")
@@ -145,30 +146,39 @@ class GameService:
             print("Ability: not enough MP")
             return
         
-        if 'weapon' in tags:
-            weapon = self.active_character.get_weapon(tags['weapon'])
-            if self.map.field_in_range(origin.get_pos(), self.selected_field, weapon.range):
-                print("Ability: in range")
-            else:
+        if 'weapon' in ability.tags:
+            weapon = self.active_character.get_weapon(ability.tags['weapon'])
+            if not self.map.field_in_range(origin.get_pos(), self.selected_field, weapon.range):
+                print('Ability: not in range')
+                return
+        else:
+            if not self.map.field_in_range(origin.get_pos(), self.selected_field, ability.range):
                 print('Ability: not in range')
                 return
         
         self.attack_stage = 'ability'
         self.active_ability = ability
         self.ability_queue_pos = 0
+        self.damage_buffer = 0
+
+        print("Ability has tags", ability.tags)
+
+    def update_ability(self):
         match self.get_ability_queue_action():
             case 'ac_roll':
                 self.dice_to_roll = DICE.D20
             case 'damage_roll':
-                if 'weapon' in ability.tags:
-                    self.dice_to_roll = DICE.get_by_string(self.active_character.get_weapon(tags['weapon']).damage.split('+')[0])
+                if 'weapon' in self.active_ability.tags:
+                    self.dice_to_roll = DICE.get_by_string(self.active_character.get_weapon(self.active_ability.tags['weapon']).damage.split('+')[0])
         
         self.events.append(Event.ReadyToRoll(self.dice_to_roll[0]))
-
-        print("Ability has tags", tags)
+        self.ability_queue_pos += 1
+        if self.ability_queue_pos >= len(self.active_ability.action_queue):
+            self.end_ability()
     
     def end_ability(self):
         self.attack_stage = 'ready'
+        self.ability_queue_pos = 0
     
 
     def roll_dice(self):
